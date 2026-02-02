@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryScribe — Transform Meetings into Tickets</title>
+    <meta name="description" content="Chrome extension that turns meeting transcripts into user stories, bugs, and tasks. Push directly to GitHub or Jira.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #18181b;
+            --surface-2: #27272a;
+            --border: #3f3f46;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --primary: #6366f1;
+            --primary-hover: #818cf8;
+            --accent: #a855f7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Nav */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; }
+        .nav-links a:hover { color: var(--text); }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { background: var(--surface); }
+        .btn-large { padding: 16px 32px; font-size: 1.1rem; }
+        
+        /* Hero */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+        .hero-badge .dot { color: #22c55e; }
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 48px;
+        }
+        .hero-cta { display: flex; gap: 16px; justify-content: center; }
+        .hero-price {
+            margin-top: 24px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        .hero-price strong { color: var(--text); font-size: 1.5rem; }
+        
+        /* Video/Demo */
+        .demo {
+            padding: 40px 0 100px;
+        }
+        .demo-frame {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .demo-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--surface-2);
+        }
+        .demo-dot:nth-child(1) { background: #ef4444; }
+        .demo-dot:nth-child(2) { background: #f59e0b; }
+        .demo-dot:nth-child(3) { background: #22c55e; }
+        .demo-content {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 32px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .demo-content h3 { font-size: 1.5rem; margin-bottom: 16px; }
+        .demo-content p { color: var(--text-muted); margin-bottom: 24px; }
+        
+        /* Features */
+        .features {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.2s;
+        }
+        .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .feature-card h3 { font-size: 1.25rem; margin-bottom: 12px; }
+        .feature-card p { color: var(--text-muted); font-size: 0.95rem; }
+        
+        /* How it works */
+        .how-it-works {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+        }
+        .step { text-align: center; }
+        .step-num {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0 auto 20px;
+        }
+        .step h4 { margin-bottom: 8px; font-size: 1.1rem; }
+        .step p { color: var(--text-muted); font-size: 0.9rem; }
+        
+        /* Pricing */
+        .pricing {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+        }
+        .pricing-card {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+        }
+        .pricing-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .pricing-amount {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .pricing-period { color: var(--text-muted); margin-bottom: 32px; }
+        .pricing-features {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        .pricing-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .pricing-feature:last-child { border-bottom: none; }
+        .pricing-check { color: #22c55e; font-size: 1.2rem; }
+        
+        /* Security */
+        .security {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+        }
+        .security-box {
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 64px;
+            text-align: center;
+        }
+        .security-box h2 { font-size: 2rem; margin-bottom: 20px; }
+        .security-box p {
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #22c55e;
+            font-weight: 500;
+        }
+        
+        /* CTA */
+        .cta {
+            padding: 120px 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        .cta h2 { font-size: 3rem; margin-bottom: 24px; }
+        .cta p { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px; }
+        
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero h1 { font-size: 2.5rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: repeat(2, 1fr); }
+            .nav-links { display: none; }
+        }
+        @media (max-width: 640px) {
+            .steps { grid-template-columns: 1fr; }
+            .pricing-card { padding: 32px 24px; }
+            .security-box { padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">📋</div>
+                StoryScribe
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="https://storyscribe.lemonsqueezy.com/checkout/buy/b88d23e7-f525-4be4-8af9-a1e8b8605dd8" class="btn">Get Extension →</a>
+            </div>
+        </div>
+    </nav>
+    
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="dot">●</span>
+                Works with Teams, Zoom & Google Meet
+            </div>
+            <h1>Meetings → <span>Tickets</span><br>in Seconds</h1>
+            <p>Stop manually creating Jira tickets after every meeting. StoryScribe captures your transcript and uses AI to extract user stories, bugs, and tasks — then pushes them directly to your tools.</p>
+            <div class="hero-cta">
+                <a href="https://storyscribe.lemonsqueezy.com/checkout/buy/b88d23e7-f525-4be4-8af9-a1e8b8605dd8" class="btn btn-large">Get StoryScribe →</a>
+                <a href="#how-it-works" class="btn btn-outline btn-large">See How It Works</a>
+            </div>
+            <p class="hero-price"><strong>$79</strong>/month • Cancel anytime</p>
+        </div>
+    </section>
+    
+    <section class="demo">
+        <div class="container">
+            <div class="demo-frame">
+                <div class="demo-header">
+                    <div class="demo-dot"></div>
+                    <div class="demo-dot"></div>
+                    <div class="demo-dot"></div>
+                </div>
+                <div class="demo-content">
+                    <h3>🎬 See StoryScribe in Action</h3>
+                    <p>Watch how a 30-minute meeting becomes 12 organized tickets in under 60 seconds.</p>
+                    <a href="app.html" class="btn">Try the Demo →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Everything You Need</h2>
+                <p>From transcript to tickets in one click</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎙️</div>
+                    <h3>Smart Capture</h3>
+                    <p>Works directly in Teams, Zoom, and Google Meet. One click to capture the entire transcript.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Extraction</h3>
+                    <p>GPT-4 identifies user stories, bugs, tasks, and spikes from natural conversation. No special formatting needed.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏷️</div>
+                    <h3>Auto-Labeling</h3>
+                    <p>Automatically categorizes and prioritizes tickets based on context and urgency discussed in the meeting.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Direct Integration</h3>
+                    <p>Push tickets directly to GitHub Issues, Jira, or Linear. One click, all your tickets created.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✏️</div>
+                    <h3>Review & Edit</h3>
+                    <p>Review extracted tickets before pushing. Edit titles, descriptions, and labels as needed.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your transcripts never leave your browser. API calls go directly from your machine to OpenAI.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>From meeting chaos to organized backlog in 4 steps</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h4>Join Your Meeting</h4>
+                    <p>StoryScribe works in the background while you focus on the discussion</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h4>Capture Transcript</h4>
+                    <p>Click the StoryScribe button to capture the meeting transcript</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h4>AI Extraction</h4>
+                    <p>AI analyzes the conversation and extracts actionable tickets</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <h4>Push to Tools</h4>
+                    <p>Review and push tickets to GitHub, Jira, or Linear with one click</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple Pricing</h2>
+                <p>One plan, everything included</p>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-badge">Most Popular</div>
+                <div class="pricing-amount">$79</div>
+                <div class="pricing-period">per month • cancel anytime</div>
+                <div class="pricing-features">
+                    <div class="pricing-feature">
+                        <span class="pricing-check">✓</span>
+                        <span>Unlimited meetings</span>
+                    </div>
+                    <div class="pricing-feature">
+                        <span class="pricing-check">✓</span>
+                        <span>Teams, Zoom & Meet support</span>
+                    </div>
+                    <div class="pricing-feature">
+                        <span class="pricing-check">✓</span>
+                        <span>GitHub, Jira & Linear integration</span>
+                    </div>
+                    <div class="pricing-feature">
+                        <span class="pricing-check">✓</span>
+                        <span>AI-powered extraction (BYO OpenAI key)</span>
+                    </div>
+                    <div class="pricing-feature">
+                        <span class="pricing-check">✓</span>
+                        <span>Priority support</span>
+                    </div>
+                </div>
+                <a href="https://storyscribe.lemonsqueezy.com/checkout/buy/b88d23e7-f525-4be4-8af9-a1e8b8605dd8" class="btn btn-large" style="width: 100%;">Get StoryScribe →</a>
+            </div>
+        </div>
+    </section>
+    
+    <section class="security">
+        <div class="container">
+            <div class="security-box">
+                <h2>🔐 Enterprise-Grade Privacy</h2>
+                <p>StoryScribe runs entirely in your browser. Your meeting transcripts, API keys, and credentials never touch our servers. What happens in your meetings stays in your meetings.</p>
+                <div class="security-badges">
+                    <div class="security-badge"><span>✓</span> Client-side only</div>
+                    <div class="security-badge"><span>✓</span> No data storage</div>
+                    <div class="security-badge"><span>✓</span> Direct API calls</div>
+                    <div class="security-badge"><span>✓</span> SOC 2 ready</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta">
+        <div class="container">
+            <h2>Stop wasting time on ticket creation</h2>
+            <p>Give your product managers their time back. Let AI handle the busywork.</p>
+            <a href="https://storyscribe.lemonsqueezy.com/checkout/buy/b88d23e7-f525-4be4-8af9-a1e8b8605dd8" class="btn btn-large">Get StoryScribe for $79/mo →</a>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <p>© 2026 StoryScribe. Built for teams who value their time.</p>
+        </div>
+    </footer>
+</body>
+</html>
