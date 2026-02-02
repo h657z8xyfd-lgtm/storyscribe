@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 380px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f11;
+      color: #e5e5e7;
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #2a2a32;
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .title { font-size: 18px; font-weight: 600; }
+    .subtitle { font-size: 12px; color: #8b8b96; }
+    
+    .section {
+      background: #1a1a1f;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8b8b96;
+      margin-bottom: 12px;
+    }
+    
+    .license-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: #141417;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .license-status.active { color: #22c55e; }
+    .license-status.inactive { color: #f59e0b; }
+    
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: #141417;
+      border: 1px solid #2a2a32;
+      border-radius: 8px;
+      padding: 12px;
+      color: #e5e5e7;
+      font-family: inherit;
+      font-size: 13px;
+      resize: none;
+    }
+    textarea:focus { outline: none; border-color: #6366f1; }
+    textarea::placeholder { color: #555; }
+    
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #6366f1; color: white; }
+    .btn-primary:hover { background: #818cf8; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-success { background: #22c55e; color: white; }
+    .btn-success:hover { background: #16a34a; }
+    .btn-secondary { background: #2a2a32; color: #e5e5e7; }
+    .btn-secondary:hover { background: #3a3a42; }
+    
+    .input-group { margin-bottom: 12px; }
+    .input-label {
+      font-size: 12px;
+      color: #8b8b96;
+      margin-bottom: 6px;
+      display: block;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #141417;
+      border: 1px solid #2a2a32;
+      border-radius: 8px;
+      color: #e5e5e7;
+      font-size: 13px;
+    }
+    input:focus { outline: none; border-color: #6366f1; }
+    
+    .ticket-preview {
+      background: #141417;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .ticket-item {
+      padding: 10px;
+      border-bottom: 1px solid #2a2a32;
+      font-size: 13px;
+    }
+    .ticket-item:last-child { border-bottom: none; }
+    .ticket-type {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-right: 8px;
+    }
+    .ticket-type.bug { background: rgba(239,68,68,0.2); color: #ef4444; }
+    .ticket-type.story { background: rgba(99,102,241,0.2); color: #6366f1; }
+    .ticket-type.task { background: rgba(34,197,94,0.2); color: #22c55e; }
+    
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px;
+      background: #141417;
+      border: 1px solid #2a2a32;
+      border-radius: 8px;
+      color: #8b8b96;
+      cursor: pointer;
+      text-align: center;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .tab.active { background: #6366f1; border-color: #6366f1; color: white; }
+    
+    .hidden { display: none !important; }
+    
+    .status-msg {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .status-msg.success { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .status-msg.error { background: rgba(239,68,68,0.2); color: #ef4444; }
+    
+    .capture-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .capture-btn:hover { transform: scale(1.02); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">📋</div>
+    <div>
+      <div class="title">StoryScribe</div>
+      <div class="subtitle">Meeting → Tickets</div>
+    </div>
+  </div>
+  
+  <!-- License Section -->
+  <div class="section" id="licenseSection">
+    <div class="section-title">License</div>
+    <div class="license-status inactive" id="licenseStatus">
+      <span>⚠️</span>
+      <span id="licenseText">No license key</span>
+    </div>
+    <div class="input-group" style="margin-top: 12px;">
+      <input type="text" id="licenseKey" placeholder="Enter license key...">
+    </div>
+    <button class="btn btn-secondary" id="activateBtn">Activate License</button>
+    <a href="https://storyscribe.lemonsqueezy.com/checkout/buy/b88d23e7-f525-4be4-8af9-a1e8b8605dd8" target="_blank" style="display: block; text-align: center; margin-top: 8px; color: #6366f1; font-size: 12px; text-decoration: none;">Get a license →</a>
+  </div>
+  
+  <!-- Main App (shown when licensed) -->
+  <div id="mainApp">
+    <div class="tabs">
+      <div class="tab active" data-tab="capture">Capture</div>
+      <div class="tab" data-tab="paste">Paste</div>
+      <div class="tab" data-tab="settings">Settings</div>
+    </div>
+    
+    <!-- Capture Tab -->
+    <div class="tab-content" id="tab-capture">
+      <div class="section">
+        <div class="capture-btn" id="captureBtn">
+          <span>📹</span>
+          <span>Capture from Page</span>
+        </div>
+        <p style="font-size: 11px; color: #8b8b96; margin-top: 12px; text-align: center;">
+          Works on Teams, Zoom, and Google Meet
+        </p>
+      </div>
+    </div>
+    
+    <!-- Paste Tab -->
+    <div class="tab-content hidden" id="tab-paste">
+      <div class="section">
+        <div class="section-title">Transcript</div>
+        <textarea id="transcriptInput" placeholder="Paste your meeting transcript here..."></textarea>
+        <button class="btn btn-primary" id="analyzeBtn">✨ Analyze Transcript</button>
+      </div>
+    </div>
+    
+    <!-- Settings Tab -->
+    <div class="tab-content hidden" id="tab-settings">
+      <div class="section">
+        <div class="section-title">OpenAI API Key</div>
+        <div class="input-group">
+          <input type="password" id="openaiKey" placeholder="sk-...">
+        </div>
+        <p style="font-size: 11px; color: #8b8b96;">Your key is stored locally only</p>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">GitHub Integration</div>
+        <div class="input-group">
+          <label class="input-label">Personal Access Token</label>
+          <input type="password" id="githubToken" placeholder="ghp_...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Repository (owner/repo)</label>
+          <input type="text" id="githubRepo" placeholder="owner/repo">
+        </div>
+      </div>
+      
+      <button class="btn btn-success" id="saveSettingsBtn">💾 Save Settings</button>
+    </div>
+    
+    <!-- Results Section -->
+    <div class="section hidden" id="resultsSection">
+      <div class="section-title">Extracted Tickets (<span id="ticketCount">0</span>)</div>
+      <div class="ticket-preview" id="ticketList"></div>
+      <button class="btn btn-success" id="pushBtn">🚀 Push to GitHub</button>
+      <div class="status-msg hidden" id="statusMsg"></div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

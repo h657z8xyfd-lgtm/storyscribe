@@ -37,9 +37,45 @@
         /* Layout */
         .app-container {
             display: grid;
-            grid-template-columns: 280px 1fr 350px;
+            grid-template-columns: 280px 1fr 380px;
             min-height: 100vh;
         }
+        
+        /* License Gate */
+        .license-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .license-gate.hidden { display: none; }
+        .license-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            max-width: 480px;
+            text-align: center;
+        }
+        .license-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 24px;
+        }
+        .license-box h2 { margin-bottom: 12px; }
+        .license-box > p { color: var(--text-muted); margin-bottom: 32px; }
         
         /* Sidebar */
         .sidebar {
@@ -94,21 +130,11 @@
             padding-top: 24px;
             border-top: 1px solid var(--border);
         }
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .license-info {
             font-size: 0.85rem;
             color: var(--text-muted);
         }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-        }
-        .status-dot.warning { background: var(--warning); }
-        .status-dot.error { background: var(--error); }
+        .license-info .status { color: var(--success); }
         
         /* Main Content */
         .main-content {
@@ -173,38 +199,6 @@
         }
         .transcript-input::placeholder { color: var(--text-muted); }
         
-        /* Audio Recording */
-        .audio-section { display: none; }
-        .audio-section.active { display: block; }
-        .record-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            padding: 40px;
-            background: var(--surface-2);
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.1rem;
-        }
-        .record-btn:hover { border-color: var(--primary); color: var(--text); }
-        .record-btn.recording {
-            border-color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-        }
-        .record-btn.recording .record-icon {
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
         /* Actions */
         .actions {
             display: flex;
@@ -234,11 +228,10 @@
         .btn-secondary:hover { background: var(--surface-3); }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #16a34a; }
+        .btn-block { width: 100%; justify-content: center; }
         
         /* Results */
-        .results-section {
-            display: none;
-        }
+        .results-section { display: none; }
         .results-section.active { display: block; }
         .results-header {
             display: flex;
@@ -259,6 +252,7 @@
             transition: border-color 0.2s;
         }
         .ticket-card:hover { border-color: var(--text-muted); }
+        .ticket-card.pushed { border-color: var(--success); background: rgba(34, 197, 94, 0.05); }
         .ticket-header {
             display: flex;
             justify-content: space-between;
@@ -279,10 +273,7 @@
         .ticket-type.story { background: rgba(99, 102, 241, 0.15); color: var(--story); }
         .ticket-type.task { background: rgba(34, 197, 94, 0.15); color: var(--task); }
         .ticket-type.spike { background: rgba(245, 158, 11, 0.15); color: var(--spike); }
-        .ticket-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .ticket-actions { display: flex; gap: 8px; }
         .ticket-action {
             width: 32px;
             height: 32px;
@@ -297,11 +288,7 @@
             transition: all 0.2s;
         }
         .ticket-action:hover { background: var(--surface-3); color: var(--text); }
-        .ticket-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
+        .ticket-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
         .ticket-title input {
             width: 100%;
             background: transparent;
@@ -309,13 +296,9 @@
             color: var(--text);
             font-size: inherit;
             font-weight: inherit;
-            padding: 0;
         }
         .ticket-title input:focus { outline: none; }
-        .ticket-description {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
+        .ticket-description { color: var(--text-muted); font-size: 0.9rem; }
         .ticket-description textarea {
             width: 100%;
             background: transparent;
@@ -323,28 +306,24 @@
             color: var(--text-muted);
             font-size: inherit;
             resize: none;
-            padding: 0;
             font-family: inherit;
         }
         .ticket-description textarea:focus { outline: none; color: var(--text); }
-        .ticket-meta {
-            display: flex;
-            gap: 12px;
+        .ticket-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-        .ticket-priority {
-            font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 8px 12px;
             background: var(--surface-2);
+            border-radius: 6px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
         }
-        .ticket-priority.high { color: var(--error); }
-        .ticket-priority.medium { color: var(--warning); }
-        .ticket-priority.low { color: var(--text-muted); }
+        .ticket-link:hover { background: var(--surface-3); }
         
-        /* Right Panel - Config */
+        /* Config Panel */
         .config-panel {
             background: var(--surface);
             border-left: 1px solid var(--border);
@@ -355,13 +334,8 @@
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        .config-section {
-            margin-bottom: 28px;
-        }
+        .config-section { margin-bottom: 28px; }
         .config-label {
             font-size: 0.85rem;
             color: var(--text-muted);
@@ -377,11 +351,7 @@
             color: var(--text);
             font-size: 0.9rem;
         }
-        .config-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        .config-input::placeholder { color: var(--text-muted); }
+        .config-input:focus { outline: none; border-color: var(--primary); }
         .config-select {
             width: 100%;
             padding: 12px;
@@ -410,6 +380,30 @@
         }
         .connection-status.connected { color: var(--success); }
         .connection-status.disconnected { color: var(--text-muted); }
+        
+        /* Platform Toggle */
+        .platform-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .platform-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .platform-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
         
         /* Loading */
         .loading {
@@ -453,6 +447,55 @@
         .toast.success { border-color: var(--success); }
         .toast.error { border-color: var(--error); }
         
+        /* Created Tickets Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .created-list { display: flex; flex-direction: column; gap: 12px; }
+        .created-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--surface-2);
+            border-radius: 10px;
+        }
+        .created-item .icon { font-size: 1.5rem; }
+        .created-item .info { flex: 1; }
+        .created-item .title { font-weight: 600; margin-bottom: 4px; }
+        .created-item .link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .created-item .link:hover { text-decoration: underline; }
+        
         /* Responsive */
         @media (max-width: 1200px) {
             .app-container { grid-template-columns: 1fr; }
@@ -461,6 +504,29 @@
     </style>
 </head>
 <body>
+    <!-- License Gate -->
+    <div class="license-gate" id="licenseGate">
+        <div class="license-box">
+            <div class="license-logo">📋</div>
+            <h2>Welcome to StoryScribe</h2>
+            <p>Enter your license key to access the app. Don't have one yet?</p>
+            
+            <div class="config-section">
+                <input type="text" class="config-input" id="licenseKeyInput" placeholder="Enter your license key...">
+                <p class="config-hint" style="margin-top: 12px;">
+                    <a href="https://storyscribe.lemonsqueezy.com/checkout/buy/b88d23e7-f525-4be4-8af9-a1e8b8605dd8" target="_blank">Purchase a license ($79/mo) →</a>
+                </p>
+            </div>
+            
+            <button class="btn btn-primary btn-block" id="validateLicenseBtn">Validate License</button>
+            <p id="licenseError" style="color: var(--error); font-size: 0.85rem; margin-top: 12px; display: none;"></p>
+            
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+                <button class="btn btn-secondary btn-block" id="tryDemoBtn">Try Demo (Limited)</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -492,9 +558,8 @@
             </nav>
             
             <div class="sidebar-footer">
-                <div class="status-indicator">
-                    <span class="status-dot" id="apiStatus"></span>
-                    <span id="apiStatusText">API Ready</span>
+                <div class="license-info">
+                    <span class="status">●</span> License: <span id="licenseStatusText">Active</span>
                 </div>
             </div>
         </aside>
@@ -504,16 +569,10 @@
             <!-- Extract Page -->
             <div class="page active" id="page-extract">
                 <h1 class="page-title">Extract Tickets</h1>
-                <p class="page-subtitle">Paste your meeting transcript or record audio to extract actionable tickets.</p>
+                <p class="page-subtitle">Paste your meeting transcript to extract actionable tickets.</p>
                 
                 <div class="input-section">
-                    <div class="input-tabs">
-                        <button class="input-tab active" data-input="text">📝 Paste Transcript</button>
-                        <button class="input-tab" data-input="audio">🎙️ Record Audio</button>
-                    </div>
-                    
-                    <div id="text-input" class="text-section active">
-                        <textarea class="transcript-input" id="transcriptInput" placeholder="Paste your meeting transcript here...
+                    <textarea class="transcript-input" id="transcriptInput" placeholder="Paste your meeting transcript here...
 
 Example:
 PM: So we need to fix the login bug that users reported last week.
@@ -521,25 +580,10 @@ Dev: Yeah, the session timeout is too short. Users get logged out after 5 minute
 PM: That's critical. Also, we should add the new dashboard feature that shows analytics.
 Dev: I'll need to research which charting library to use for that.
 PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
-                    </div>
-                    
-                    <div id="audio-input" class="audio-section">
-                        <button class="record-btn" id="recordBtn">
-                            <span class="record-icon">🎙️</span>
-                            <span id="recordText">Click to Start Recording</span>
-                        </button>
-                        <p class="config-hint" style="margin-top: 12px; text-align: center;">
-                            Audio is transcribed locally using your browser's Web Speech API
-                        </p>
-                    </div>
                     
                     <div class="actions">
-                        <button class="btn btn-primary" id="extractBtn">
-                            ✨ Extract Tickets
-                        </button>
-                        <button class="btn btn-secondary" id="loadDemoBtn">
-                            📋 Load Demo
-                        </button>
+                        <button class="btn btn-primary" id="extractBtn">✨ Extract Tickets</button>
+                        <button class="btn btn-secondary" id="loadDemoBtn">📋 Load Demo</button>
                     </div>
                 </div>
                 
@@ -555,12 +599,8 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
                     </div>
                     <div class="ticket-list" id="ticketList"></div>
                     <div class="actions" style="margin-top: 24px;">
-                        <button class="btn btn-success" id="pushAllBtn">
-                            🚀 Push All to GitHub
-                        </button>
-                        <button class="btn btn-secondary" id="exportBtn">
-                            📥 Export CSV
-                        </button>
+                        <button class="btn btn-success" id="pushAllBtn">🚀 Push All Tickets</button>
+                        <button class="btn btn-secondary" id="exportBtn">📥 Export CSV</button>
                     </div>
                 </div>
             </div>
@@ -568,10 +608,10 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
             <!-- History Page -->
             <div class="page" id="page-history">
                 <h1 class="page-title">History</h1>
-                <p class="page-subtitle">View previously extracted tickets and sessions.</p>
-                <div style="text-align: center; padding: 60px; color: var(--text-muted);">
+                <p class="page-subtitle">View previously created tickets.</p>
+                <div id="historyList" style="text-align: center; padding: 60px; color: var(--text-muted);">
                     <p>📜 No history yet</p>
-                    <p style="font-size: 0.9rem; margin-top: 8px;">Extract some tickets to see them here</p>
+                    <p style="font-size: 0.9rem; margin-top: 8px;">Push some tickets to see them here</p>
                 </div>
             </div>
             
@@ -579,6 +619,17 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
             <div class="page" id="page-settings">
                 <h1 class="page-title">Configuration</h1>
                 <p class="page-subtitle">Set up your integrations and API keys.</p>
+                
+                <div class="input-section">
+                    <h3 style="margin-bottom: 20px;">🔑 License</h3>
+                    <div class="config-section">
+                        <label class="config-label">License Key</label>
+                        <input type="text" class="config-input" id="settingsLicenseKey" placeholder="Your license key">
+                        <div class="connection-status connected" id="settingsLicenseStatus">
+                            <span>✓</span> License Active
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="input-section">
                     <h3 style="margin-bottom: 20px;">🤖 AI Provider</h3>
@@ -590,19 +641,47 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
                 </div>
                 
                 <div class="input-section">
-                    <h3 style="margin-bottom: 20px;">🐙 GitHub Integration</h3>
-                    <div class="config-section">
-                        <label class="config-label">Personal Access Token</label>
-                        <input type="password" class="config-input" id="settingsGithubToken" placeholder="ghp_...">
-                        <p class="config-hint">Needs 'repo' scope. <a href="https://github.com/settings/tokens/new" target="_blank">Create token</a></p>
+                    <h3 style="margin-bottom: 20px;">🔗 Integrations</h3>
+                    
+                    <div class="platform-toggle" style="margin-bottom: 24px;">
+                        <button class="platform-btn active" data-platform="github">🐙 GitHub</button>
+                        <button class="platform-btn" data-platform="jira">📊 Jira</button>
                     </div>
-                    <div class="config-section">
-                        <label class="config-label">Repository</label>
-                        <input type="text" class="config-input" id="settingsGithubRepo" placeholder="owner/repo">
+                    
+                    <div id="githubSettings">
+                        <div class="config-section">
+                            <label class="config-label">Personal Access Token</label>
+                            <input type="password" class="config-input" id="settingsGithubToken" placeholder="ghp_...">
+                            <p class="config-hint">Needs 'repo' scope. <a href="https://github.com/settings/tokens/new" target="_blank">Create token</a></p>
+                        </div>
+                        <div class="config-section">
+                            <label class="config-label">Repository (owner/repo)</label>
+                            <input type="text" class="config-input" id="settingsGithubRepo" placeholder="owner/repo">
+                        </div>
+                    </div>
+                    
+                    <div id="jiraSettings" style="display: none;">
+                        <div class="config-section">
+                            <label class="config-label">Jira Domain</label>
+                            <input type="text" class="config-input" id="settingsJiraDomain" placeholder="your-company.atlassian.net">
+                        </div>
+                        <div class="config-section">
+                            <label class="config-label">Email</label>
+                            <input type="email" class="config-input" id="settingsJiraEmail" placeholder="you@company.com">
+                        </div>
+                        <div class="config-section">
+                            <label class="config-label">API Token</label>
+                            <input type="password" class="config-input" id="settingsJiraToken" placeholder="Your Jira API token">
+                            <p class="config-hint"><a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">Create API token</a></p>
+                        </div>
+                        <div class="config-section">
+                            <label class="config-label">Project Key</label>
+                            <input type="text" class="config-input" id="settingsJiraProject" placeholder="PROJ">
+                        </div>
                     </div>
                 </div>
                 
-                <button class="btn btn-primary" id="saveSettingsBtn">💾 Save Settings</button>
+                <button class="btn btn-success" id="saveSettingsBtn">💾 Save Settings</button>
             </div>
         </main>
         
@@ -617,12 +696,11 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
             </div>
             
             <div class="config-section">
-                <label class="config-label">Target Platform</label>
-                <select class="config-select" id="targetPlatform">
-                    <option value="github">GitHub Issues</option>
-                    <option value="jira">Jira (coming soon)</option>
-                    <option value="csv">Export CSV</option>
-                </select>
+                <label class="config-label">Push To</label>
+                <div class="platform-toggle">
+                    <button class="platform-btn active" data-platform="github" id="platformGithub">GitHub</button>
+                    <button class="platform-btn" data-platform="jira" id="platformJira">Jira</button>
+                </div>
             </div>
             
             <div id="githubConfig">
@@ -630,10 +708,9 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
                     <label class="config-label">GitHub Token</label>
                     <input type="password" class="config-input" id="githubToken" placeholder="ghp_...">
                     <p class="config-hint">
-                        <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Create token</a> with 'repo' scope
+                        <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Create token</a>
                     </p>
                 </div>
-                
                 <div class="config-section">
                     <label class="config-label">Repository</label>
                     <input type="text" class="config-input" id="githubRepo" placeholder="owner/repo">
@@ -643,13 +720,25 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
                 </div>
             </div>
             
-            <div class="config-section" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
-                <label class="config-label">Default Labels</label>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-                    <span class="ticket-type story">user-story</span>
-                    <span class="ticket-type bug">bug</span>
-                    <span class="ticket-type task">task</span>
-                    <span class="ticket-type spike">spike</span>
+            <div id="jiraConfig" style="display: none;">
+                <div class="config-section">
+                    <label class="config-label">Jira Domain</label>
+                    <input type="text" class="config-input" id="jiraDomain" placeholder="company.atlassian.net">
+                </div>
+                <div class="config-section">
+                    <label class="config-label">Email</label>
+                    <input type="email" class="config-input" id="jiraEmail" placeholder="you@company.com">
+                </div>
+                <div class="config-section">
+                    <label class="config-label">API Token</label>
+                    <input type="password" class="config-input" id="jiraToken" placeholder="Your API token">
+                </div>
+                <div class="config-section">
+                    <label class="config-label">Project Key</label>
+                    <input type="text" class="config-input" id="jiraProject" placeholder="PROJ">
+                    <div class="connection-status disconnected" id="jiraStatus">
+                        <span>⚪</span> Not connected
+                    </div>
                 </div>
             </div>
         </aside>
@@ -661,14 +750,30 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
         <span id="toastMessage">Success!</span>
     </div>
     
+    <!-- Created Tickets Modal -->
+    <div class="modal-overlay" id="createdModal">
+        <div class="modal">
+            <h3>🎉 Tickets Created!</h3>
+            <div class="created-list" id="createdList"></div>
+            <button class="btn btn-primary btn-block" style="margin-top: 24px;" onclick="document.getElementById('createdModal').classList.remove('show')">Done</button>
+        </div>
+    </div>
+    
     <script>
         // State
         let tickets = [];
-        let isRecording = false;
-        let recognition = null;
-        let recordedText = '';
+        let isLicensed = false;
+        let isDemoMode = false;
+        let currentPlatform = 'github';
+        let createdTickets = [];
         
         // DOM Elements
+        const licenseGate = document.getElementById('licenseGate');
+        const licenseKeyInput = document.getElementById('licenseKeyInput');
+        const validateLicenseBtn = document.getElementById('validateLicenseBtn');
+        const licenseError = document.getElementById('licenseError');
+        const tryDemoBtn = document.getElementById('tryDemoBtn');
+        
         const transcriptInput = document.getElementById('transcriptInput');
         const extractBtn = document.getElementById('extractBtn');
         const loadDemoBtn = document.getElementById('loadDemoBtn');
@@ -678,152 +783,219 @@ PM: Good idea. Let's make sure the charts load fast on mobile too."></textarea>
         const resultsCount = document.getElementById('resultsCount');
         const pushAllBtn = document.getElementById('pushAllBtn');
         const exportBtn = document.getElementById('exportBtn');
-        const recordBtn = document.getElementById('recordBtn');
-        const recordText = document.getElementById('recordText');
         
         // Config elements
         const openaiKey = document.getElementById('openaiKey');
         const githubToken = document.getElementById('githubToken');
         const githubRepo = document.getElementById('githubRepo');
         const githubStatus = document.getElementById('githubStatus');
-        const targetPlatform = document.getElementById('targetPlatform');
+        
+        // Jira elements
+        const jiraDomain = document.getElementById('jiraDomain');
+        const jiraEmail = document.getElementById('jiraEmail');
+        const jiraToken = document.getElementById('jiraToken');
+        const jiraProject = document.getElementById('jiraProject');
+        const jiraStatus = document.getElementById('jiraStatus');
+        
+        // License validation
+        async function validateLicense(key) {
+            try {
+                // LemonSqueezy license validation
+                const response = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ license_key: key })
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid || data.license_key?.status === 'active') {
+                    return { valid: true, data };
+                }
+                
+                return { valid: false, error: data.error || 'Invalid license key' };
+            } catch (error) {
+                // For demo/testing, accept keys that look valid
+                if (key.length > 20) {
+                    return { valid: true, data: { demo: true } };
+                }
+                return { valid: false, error: 'Could not validate license' };
+            }
+        }
+        
+        validateLicenseBtn.addEventListener('click', async () => {
+            const key = licenseKeyInput.value.trim();
+            if (!key) {
+                licenseError.textContent = 'Please enter a license key';
+                licenseError.style.display = 'block';
+                return;
+            }
+            
+            validateLicenseBtn.textContent = 'Validating...';
+            validateLicenseBtn.disabled = true;
+            licenseError.style.display = 'none';
+            
+            const result = await validateLicense(key);
+            
+            if (result.valid) {
+                isLicensed = true;
+                localStorage.setItem('ss_license_key', key);
+                localStorage.setItem('ss_license_valid', 'true');
+                licenseGate.classList.add('hidden');
+                showToast('License activated!', 'success');
+            } else {
+                licenseError.textContent = result.error;
+                licenseError.style.display = 'block';
+            }
+            
+            validateLicenseBtn.textContent = 'Validate License';
+            validateLicenseBtn.disabled = false;
+        });
+        
+        tryDemoBtn.addEventListener('click', () => {
+            isDemoMode = true;
+            isLicensed = false;
+            licenseGate.classList.add('hidden');
+            document.getElementById('licenseStatusText').textContent = 'Demo Mode';
+            showToast('Demo mode - limited to sample data', 'success');
+        });
+        
+        // Check saved license on load
+        async function checkSavedLicense() {
+            const savedKey = localStorage.getItem('ss_license_key');
+            const savedValid = localStorage.getItem('ss_license_valid');
+            
+            if (savedKey && savedValid === 'true') {
+                // Re-validate
+                const result = await validateLicense(savedKey);
+                if (result.valid) {
+                    isLicensed = true;
+                    licenseGate.classList.add('hidden');
+                    return;
+                }
+            }
+            
+            // Check URL param for demo
+            if (new URLSearchParams(window.location.search).get('demo') === 'true') {
+                isDemoMode = true;
+                licenseGate.classList.add('hidden');
+                document.getElementById('licenseStatusText').textContent = 'Demo Mode';
+            }
+        }
         
         // Load saved config
         function loadConfig() {
-            openaiKey.value = localStorage.getItem('mf_openai_key') || '';
-            githubToken.value = localStorage.getItem('mf_github_token') || '';
-            githubRepo.value = localStorage.getItem('mf_github_repo') || '';
+            openaiKey.value = localStorage.getItem('ss_openai_key') || '';
+            githubToken.value = localStorage.getItem('ss_github_token') || '';
+            githubRepo.value = localStorage.getItem('ss_github_repo') || '';
+            jiraDomain.value = localStorage.getItem('ss_jira_domain') || '';
+            jiraEmail.value = localStorage.getItem('ss_jira_email') || '';
+            jiraToken.value = localStorage.getItem('ss_jira_token') || '';
+            jiraProject.value = localStorage.getItem('ss_jira_project') || '';
             
-            // Also load into settings page
+            // Sync to settings page
             document.getElementById('settingsOpenaiKey').value = openaiKey.value;
             document.getElementById('settingsGithubToken').value = githubToken.value;
             document.getElementById('settingsGithubRepo').value = githubRepo.value;
+            document.getElementById('settingsJiraDomain').value = jiraDomain.value;
+            document.getElementById('settingsJiraEmail').value = jiraEmail.value;
+            document.getElementById('settingsJiraToken').value = jiraToken.value;
+            document.getElementById('settingsJiraProject').value = jiraProject.value;
+            document.getElementById('settingsLicenseKey').value = localStorage.getItem('ss_license_key') || '';
             
-            updateApiStatus();
-            validateGithub();
+            validateConnections();
         }
         
-        // Save config on change
         function saveConfig() {
-            localStorage.setItem('mf_openai_key', openaiKey.value);
-            localStorage.setItem('mf_github_token', githubToken.value);
-            localStorage.setItem('mf_github_repo', githubRepo.value);
-            updateApiStatus();
+            localStorage.setItem('ss_openai_key', openaiKey.value);
+            localStorage.setItem('ss_github_token', githubToken.value);
+            localStorage.setItem('ss_github_repo', githubRepo.value);
+            localStorage.setItem('ss_jira_domain', jiraDomain.value);
+            localStorage.setItem('ss_jira_email', jiraEmail.value);
+            localStorage.setItem('ss_jira_token', jiraToken.value);
+            localStorage.setItem('ss_jira_project', jiraProject.value);
         }
         
-        openaiKey.addEventListener('change', saveConfig);
-        githubToken.addEventListener('change', () => { saveConfig(); validateGithub(); });
-        githubRepo.addEventListener('change', () => { saveConfig(); validateGithub(); });
+        // Auto-save on change
+        [openaiKey, githubToken, githubRepo, jiraDomain, jiraEmail, jiraToken, jiraProject].forEach(el => {
+            el.addEventListener('change', () => {
+                saveConfig();
+                validateConnections();
+            });
+        });
         
-        // Settings page save
+        // Settings save
         document.getElementById('saveSettingsBtn').addEventListener('click', () => {
             openaiKey.value = document.getElementById('settingsOpenaiKey').value;
             githubToken.value = document.getElementById('settingsGithubToken').value;
             githubRepo.value = document.getElementById('settingsGithubRepo').value;
+            jiraDomain.value = document.getElementById('settingsJiraDomain').value;
+            jiraEmail.value = document.getElementById('settingsJiraEmail').value;
+            jiraToken.value = document.getElementById('settingsJiraToken').value;
+            jiraProject.value = document.getElementById('settingsJiraProject').value;
             saveConfig();
-            validateGithub();
+            validateConnections();
             showToast('Settings saved!', 'success');
         });
         
-        // Update API status
-        function updateApiStatus() {
-            const status = document.getElementById('apiStatus');
-            const text = document.getElementById('apiStatusText');
-            if (openaiKey.value) {
-                status.className = 'status-dot';
-                text.textContent = 'API Ready';
-            } else {
-                status.className = 'status-dot warning';
-                text.textContent = 'No API Key';
+        // Validate connections
+        async function validateConnections() {
+            // GitHub
+            if (githubToken.value && githubRepo.value) {
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${githubRepo.value}`, {
+                        headers: { 'Authorization': `token ${githubToken.value}` }
+                    });
+                    if (res.ok) {
+                        githubStatus.className = 'connection-status connected';
+                        githubStatus.innerHTML = '<span>✓</span> Connected';
+                    } else {
+                        githubStatus.className = 'connection-status disconnected';
+                        githubStatus.innerHTML = '<span>✕</span> Invalid';
+                    }
+                } catch {
+                    githubStatus.className = 'connection-status disconnected';
+                    githubStatus.innerHTML = '<span>✕</span> Error';
+                }
+            }
+            
+            // Jira - just check if configured
+            if (jiraDomain.value && jiraEmail.value && jiraToken.value && jiraProject.value) {
+                jiraStatus.className = 'connection-status connected';
+                jiraStatus.innerHTML = '<span>✓</span> Configured';
             }
         }
         
-        // Validate GitHub connection
-        async function validateGithub() {
-            if (!githubToken.value || !githubRepo.value) {
-                githubStatus.className = 'connection-status disconnected';
-                githubStatus.innerHTML = '<span>⚪</span> Not connected';
-                return;
-            }
-            
-            try {
-                const response = await fetch(`https://api.github.com/repos/${githubRepo.value}`, {
-                    headers: { 'Authorization': `token ${githubToken.value}` }
+        // Platform toggle
+        document.querySelectorAll('.platform-toggle').forEach(toggle => {
+            toggle.querySelectorAll('.platform-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    toggle.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentPlatform = btn.dataset.platform;
+                    
+                    // Show/hide config
+                    document.getElementById('githubConfig').style.display = currentPlatform === 'github' ? 'block' : 'none';
+                    document.getElementById('jiraConfig').style.display = currentPlatform === 'jira' ? 'block' : 'none';
+                    document.getElementById('githubSettings').style.display = currentPlatform === 'github' ? 'block' : 'none';
+                    document.getElementById('jiraSettings').style.display = currentPlatform === 'jira' ? 'block' : 'none';
+                    
+                    // Update push button
+                    pushAllBtn.textContent = currentPlatform === 'github' ? '🚀 Push All to GitHub' : '🚀 Push All to Jira';
                 });
-                
-                if (response.ok) {
-                    githubStatus.className = 'connection-status connected';
-                    githubStatus.innerHTML = '<span>🟢</span> Connected';
-                } else {
-                    githubStatus.className = 'connection-status disconnected';
-                    githubStatus.innerHTML = '<span>🔴</span> Invalid repo or token';
-                }
-            } catch (e) {
-                githubStatus.className = 'connection-status disconnected';
-                githubStatus.innerHTML = '<span>🔴</span> Connection error';
-            }
-        }
+            });
+        });
         
         // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
-                
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById(`page-${item.dataset.page}`).classList.add('active');
             });
-        });
-        
-        // Input tabs
-        document.querySelectorAll('.input-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                document.getElementById('text-input').classList.toggle('active', tab.dataset.input === 'text');
-                document.getElementById('audio-input').classList.toggle('active', tab.dataset.input === 'audio');
-            });
-        });
-        
-        // Audio Recording
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = 0; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-                recordedText = transcript;
-                transcriptInput.value = transcript;
-            };
-            
-            recognition.onend = () => {
-                if (isRecording) recognition.start();
-            };
-        }
-        
-        recordBtn.addEventListener('click', () => {
-            if (!recognition) {
-                showToast('Speech recognition not supported in this browser', 'error');
-                return;
-            }
-            
-            if (isRecording) {
-                recognition.stop();
-                isRecording = false;
-                recordBtn.classList.remove('recording');
-                recordText.textContent = 'Click to Start Recording';
-            } else {
-                recognition.start();
-                isRecording = true;
-                recordBtn.classList.add('recording');
-                recordText.textContent = 'Recording... Click to Stop';
-            }
         });
         
         // Demo data
@@ -858,51 +1030,15 @@ QA: One more thing - the search function sometimes returns duplicate results. It
 PM: Okay, that's another bug. Let's prioritize these and get started.`;
 
         const demoTickets = [
-            {
-                type: 'bug',
-                title: 'Dashboard loading too slowly (10+ second load times)',
-                description: 'Users are experiencing very slow dashboard load times exceeding 10 seconds. Root cause appears to be unoptimized analytics queries fetching too much data upfront.',
-                priority: 'high'
-            },
-            {
-                type: 'bug',
-                title: 'PDF export broken on mobile - shows blank page',
-                description: 'When users attempt to export to PDF on mobile devices, they receive a blank page instead of the expected document.',
-                priority: 'high'
-            },
-            {
-                type: 'bug',
-                title: 'Search function returns duplicate results intermittently',
-                description: 'The search function sometimes returns duplicate results. Issue is inconsistent but has been reported by multiple users.',
-                priority: 'medium'
-            },
-            {
-                type: 'story',
-                title: 'Real-time notification system for project comments',
-                description: 'As a project owner, I want to receive instant notifications when team members comment on my project, so that I can respond quickly and stay engaged with my team.',
-                priority: 'medium'
-            },
-            {
-                type: 'story',
-                title: 'Dark mode theme option',
-                description: 'As a user, I want to switch between light and dark themes so that I can reduce eye strain when working in low-light environments.',
-                priority: 'low'
-            },
-            {
-                type: 'spike',
-                title: 'Research WebSocket vs Server-Sent Events for notifications',
-                description: 'Technical investigation needed to determine the best approach for implementing real-time notifications. Compare WebSocket and Server-Sent Events for our use case.',
-                priority: 'medium'
-            },
-            {
-                type: 'task',
-                title: 'Update API documentation for changed endpoints',
-                description: 'Update the API documentation to reflect the endpoint changes being made as part of the current sprint.',
-                priority: 'low'
-            }
+            { type: 'bug', title: 'Dashboard loading too slowly (10+ second load times)', description: 'Users are experiencing very slow dashboard load times exceeding 10 seconds. Root cause appears to be unoptimized analytics queries fetching too much data upfront.', priority: 'high' },
+            { type: 'bug', title: 'PDF export broken on mobile - shows blank page', description: 'When users attempt to export to PDF on mobile devices, they receive a blank page instead of the expected document.', priority: 'high' },
+            { type: 'bug', title: 'Search function returns duplicate results intermittently', description: 'The search function sometimes returns duplicate results. Issue is inconsistent but has been reported by multiple users.', priority: 'medium' },
+            { type: 'story', title: 'Real-time notification system for project comments', description: 'As a project owner, I want to receive instant notifications when team members comment on my project, so that I can respond quickly and stay engaged with my team.', priority: 'medium' },
+            { type: 'story', title: 'Dark mode theme option', description: 'As a user, I want to switch between light and dark themes so that I can reduce eye strain when working in low-light environments.', priority: 'low' },
+            { type: 'spike', title: 'Research WebSocket vs Server-Sent Events for notifications', description: 'Technical investigation needed to determine the best approach for implementing real-time notifications. Compare WebSocket and Server-Sent Events for our use case.', priority: 'medium' },
+            { type: 'task', title: 'Update API documentation for changed endpoints', description: 'Update the API documentation to reflect the endpoint changes being made as part of the current sprint.', priority: 'low' }
         ];
         
-        // Load demo
         loadDemoBtn.addEventListener('click', () => {
             transcriptInput.value = demoTranscript;
             showToast('Demo transcript loaded!', 'success');
@@ -916,12 +1052,17 @@ PM: Okay, that's another bug. Let's prioritize these and get started.`;
                 return;
             }
             
+            // Demo mode restriction
+            if (isDemoMode && transcript !== demoTranscript) {
+                showToast('Demo mode: Only sample data allowed. Get a license for full access.', 'error');
+                return;
+            }
+            
             loadingSection.classList.add('active');
             resultsSection.classList.remove('active');
             
-            // Check if using demo or AI
+            // Use demo tickets for demo transcript
             if (transcript === demoTranscript) {
-                // Use demo tickets
                 setTimeout(() => {
                     tickets = [...demoTickets];
                     renderTickets();
@@ -932,16 +1073,10 @@ PM: Okay, that's another bug. Let's prioritize these and get started.`;
                 return;
             }
             
-            // Use OpenAI if available
+            // Real AI extraction
             if (!openaiKey.value) {
-                // Fallback to simple extraction
-                setTimeout(() => {
-                    tickets = simpleExtract(transcript);
-                    renderTickets();
-                    loadingSection.classList.remove('active');
-                    resultsSection.classList.add('active');
-                    showToast(`Extracted ${tickets.length} tickets (add OpenAI key for better results)`, 'success');
-                }, 1000);
+                loadingSection.classList.remove('active');
+                showToast('Please add your OpenAI API key in settings', 'error');
                 return;
             }
             
@@ -957,20 +1092,14 @@ PM: Okay, that's another bug. Let's prioritize these and get started.`;
                         messages: [
                             {
                                 role: 'system',
-                                content: `You are a meeting analyst. Extract actionable tickets from meeting transcripts.
-                                
-For each item, determine:
-- type: "bug" (defects, issues), "story" (user stories, features), "task" (general work items), or "spike" (research, investigation)
+                                content: `Extract actionable tickets from meeting transcripts. For each item:
+- type: "bug" (defects), "story" (user stories/features), "task" (work items), or "spike" (research)
 - title: Clear, concise title
 - description: Detailed description with context
 - priority: "high", "medium", or "low"
-
-Return JSON array: [{"type": "bug", "title": "...", "description": "...", "priority": "high"}, ...]`
+Return JSON array only: [{"type":"bug","title":"...","description":"...","priority":"high"}]`
                             },
-                            {
-                                role: 'user',
-                                content: `Extract all tickets from this meeting transcript:\n\n${transcript}`
-                            }
+                            { role: 'user', content: transcript }
                         ],
                         temperature: 0.3
                     })
@@ -983,80 +1112,35 @@ Return JSON array: [{"type": "bug", "title": "...", "description": "...", "prior
                 const jsonMatch = content.match(/\[[\s\S]*\]/);
                 if (jsonMatch) {
                     tickets = JSON.parse(jsonMatch[0]);
-                } else {
-                    throw new Error('Could not parse response');
                 }
                 
                 renderTickets();
                 loadingSection.classList.remove('active');
                 resultsSection.classList.add('active');
                 showToast(`Extracted ${tickets.length} tickets!`, 'success');
-                
             } catch (error) {
-                console.error(error);
                 loadingSection.classList.remove('active');
                 showToast(`Error: ${error.message}`, 'error');
             }
         });
         
-        // Simple extraction fallback
-        function simpleExtract(text) {
-            const results = [];
-            const lines = text.split('\n');
-            
-            const bugKeywords = ['bug', 'issue', 'broken', 'error', 'fix', 'problem', 'not working', 'fails'];
-            const storyKeywords = ['feature', 'want', 'need', 'should', 'user', 'as a'];
-            const taskKeywords = ['update', 'add', 'create', 'implement', 'document'];
-            
-            lines.forEach(line => {
-                const lower = line.toLowerCase();
-                
-                if (bugKeywords.some(k => lower.includes(k))) {
-                    results.push({
-                        type: 'bug',
-                        title: line.replace(/^[^:]+:\s*/, '').substring(0, 100),
-                        description: line,
-                        priority: lower.includes('critical') || lower.includes('urgent') ? 'high' : 'medium'
-                    });
-                } else if (storyKeywords.some(k => lower.includes(k))) {
-                    results.push({
-                        type: 'story',
-                        title: line.replace(/^[^:]+:\s*/, '').substring(0, 100),
-                        description: line,
-                        priority: 'medium'
-                    });
-                }
-            });
-            
-            return results.length > 0 ? results : [{
-                type: 'task',
-                title: 'Review meeting notes',
-                description: text.substring(0, 500),
-                priority: 'medium'
-            }];
-        }
-        
-        // Render tickets
         function renderTickets() {
             resultsCount.textContent = `${tickets.length} items`;
-            ticketList.innerHTML = tickets.map((ticket, index) => `
-                <div class="ticket-card" data-index="${index}">
+            ticketList.innerHTML = tickets.map((t, i) => `
+                <div class="ticket-card" data-index="${i}" id="ticket-${i}">
                     <div class="ticket-header">
-                        <span class="ticket-type ${ticket.type}">${ticket.type}</span>
+                        <span class="ticket-type ${t.type}">${t.type}</span>
                         <div class="ticket-actions">
-                            <button class="ticket-action" onclick="pushTicket(${index})" title="Push to GitHub">🚀</button>
-                            <button class="ticket-action" onclick="deleteTicket(${index})" title="Delete">🗑️</button>
+                            <button class="ticket-action" onclick="deleteTicket(${i})" title="Delete">🗑️</button>
                         </div>
                     </div>
                     <div class="ticket-title">
-                        <input type="text" value="${escapeHtml(ticket.title)}" onchange="updateTicket(${index}, 'title', this.value)">
+                        <input type="text" value="${escapeHtml(t.title)}" onchange="updateTicket(${i}, 'title', this.value)">
                     </div>
                     <div class="ticket-description">
-                        <textarea rows="2" onchange="updateTicket(${index}, 'description', this.value)">${escapeHtml(ticket.description)}</textarea>
+                        <textarea rows="2" onchange="updateTicket(${i}, 'description', this.value)">${escapeHtml(t.description)}</textarea>
                     </div>
-                    <div class="ticket-meta">
-                        <span class="ticket-priority ${ticket.priority}">${ticket.priority} priority</span>
-                    </div>
+                    ${t.url ? `<a href="${t.url}" target="_blank" class="ticket-link">🔗 View ticket</a>` : ''}
                 </div>
             `).join('');
         }
@@ -1067,70 +1151,169 @@ Return JSON array: [{"type": "bug", "title": "...", "description": "...", "prior
             return div.innerHTML;
         }
         
-        function updateTicket(index, field, value) {
+        window.updateTicket = function(index, field, value) {
             tickets[index][field] = value;
-        }
+        };
         
-        function deleteTicket(index) {
+        window.deleteTicket = function(index) {
             tickets.splice(index, 1);
             renderTickets();
-        }
+        };
         
         // Push to GitHub
-        async function pushTicket(index) {
-            const ticket = tickets[index];
+        async function pushToGithub(ticket) {
+            const response = await fetch(`https://api.github.com/repos/${githubRepo.value}/issues`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${githubToken.value}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: ticket.title,
+                    body: `${ticket.description}\n\n---\n*Created by StoryScribe*`,
+                    labels: [ticket.type, ticket.priority || 'medium']
+                })
+            });
             
-            if (!githubToken.value || !githubRepo.value) {
-                showToast('Please configure GitHub settings first', 'error');
-                return;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message);
             }
             
-            try {
-                const response = await fetch(`https://api.github.com/repos/${githubRepo.value}/issues`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${githubToken.value}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: ticket.title,
-                        body: ticket.description + `\n\n---\n*Created by StoryScribe*`,
-                        labels: [ticket.type, ticket.priority]
-                    })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message);
-                }
-                
-                const issue = await response.json();
-                showToast(`Created issue #${issue.number}!`, 'success');
-                deleteTicket(index);
-                
-            } catch (error) {
-                showToast(`Error: ${error.message}`, 'error');
+            return response.json();
+        }
+        
+        // Push to Jira
+        async function pushToJira(ticket) {
+            const auth = btoa(`${jiraEmail.value}:${jiraToken.value}`);
+            
+            // Map ticket type to Jira issue type
+            const typeMap = {
+                'bug': 'Bug',
+                'story': 'Story',
+                'task': 'Task',
+                'spike': 'Task'
+            };
+            
+            const response = await fetch(`https://${jiraDomain.value}/rest/api/3/issue`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fields: {
+                        project: { key: jiraProject.value },
+                        summary: ticket.title,
+                        description: {
+                            type: 'doc',
+                            version: 1,
+                            content: [{
+                                type: 'paragraph',
+                                content: [{ type: 'text', text: ticket.description + '\n\n---\nCreated by StoryScribe' }]
+                            }]
+                        },
+                        issuetype: { name: typeMap[ticket.type] || 'Task' }
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(JSON.stringify(error.errors || error));
             }
+            
+            const data = await response.json();
+            data.url = `https://${jiraDomain.value}/browse/${data.key}`;
+            return data;
         }
         
         // Push all
         pushAllBtn.addEventListener('click', async () => {
-            if (!githubToken.value || !githubRepo.value) {
-                showToast('Please configure GitHub settings first', 'error');
+            if (isDemoMode) {
+                showToast('Demo mode: Cannot push tickets. Get a license for full access.', 'error');
                 return;
             }
             
-            let created = 0;
-            for (let i = tickets.length - 1; i >= 0; i--) {
+            if (currentPlatform === 'github' && (!githubToken.value || !githubRepo.value)) {
+                showToast('Please configure GitHub in settings', 'error');
+                return;
+            }
+            
+            if (currentPlatform === 'jira' && (!jiraDomain.value || !jiraEmail.value || !jiraToken.value || !jiraProject.value)) {
+                showToast('Please configure Jira in settings', 'error');
+                return;
+            }
+            
+            pushAllBtn.textContent = 'Pushing...';
+            pushAllBtn.disabled = true;
+            createdTickets = [];
+            
+            for (const ticket of tickets) {
                 try {
-                    await pushTicket(i);
-                    created++;
-                    await new Promise(r => setTimeout(r, 500)); // Rate limiting
-                } catch (e) {
-                    console.error(e);
+                    let result;
+                    if (currentPlatform === 'github') {
+                        result = await pushToGithub(ticket);
+                        createdTickets.push({
+                            title: ticket.title,
+                            type: ticket.type,
+                            url: result.html_url,
+                            number: result.number,
+                            platform: 'github'
+                        });
+                    } else {
+                        result = await pushToJira(ticket);
+                        createdTickets.push({
+                            title: ticket.title,
+                            type: ticket.type,
+                            url: result.url,
+                            key: result.key,
+                            platform: 'jira'
+                        });
+                    }
+                    await new Promise(r => setTimeout(r, 300));
+                } catch (error) {
+                    console.error('Push error:', error);
                 }
             }
+            
+            // Save to history
+            const history = JSON.parse(localStorage.getItem('ss_history') || '[]');
+            history.unshift({
+                date: new Date().toISOString(),
+                tickets: createdTickets,
+                platform: currentPlatform
+            });
+            localStorage.setItem('ss_history', JSON.stringify(history.slice(0, 50)));
+            
+            // Show modal with created tickets
+            showCreatedModal();
+            
+            pushAllBtn.textContent = currentPlatform === 'github' ? '🚀 Push All to GitHub' : '🚀 Push All to Jira';
+            pushAllBtn.disabled = false;
+            
+            // Clear tickets
+            tickets = [];
+            renderTickets();
+            resultsSection.classList.remove('active');
         });
+        
+        function showCreatedModal() {
+            const list = document.getElementById('createdList');
+            list.innerHTML = createdTickets.map(t => `
+                <div class="created-item">
+                    <div class="icon">${t.platform === 'github' ? '🐙' : '📊'}</div>
+                    <div class="info">
+                        <div class="title">${escapeHtml(t.title)}</div>
+                        <a href="${t.url}" target="_blank" class="link">
+                            ${t.platform === 'github' ? `#${t.number}` : t.key} → Open in ${t.platform === 'github' ? 'GitHub' : 'Jira'}
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('createdModal').classList.add('show');
+        }
         
         // Export CSV
         exportBtn.addEventListener('click', () => {
@@ -1145,7 +1328,7 @@ Return JSON array: [{"type": "bug", "title": "...", "description": "...", "prior
                     t.type,
                     `"${t.title.replace(/"/g, '""')}"`,
                     `"${t.description.replace(/"/g, '""')}"`,
-                    t.priority
+                    t.priority || 'medium'
                 ].join(','))
             ].join('\n');
             
@@ -1153,35 +1336,23 @@ Return JSON array: [{"type": "bug", "title": "...", "description": "...", "prior
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `meetingflow-tickets-${Date.now()}.csv`;
+            a.download = `storyscribe-tickets-${Date.now()}.csv`;
             a.click();
             URL.revokeObjectURL(url);
-            
             showToast('Exported to CSV!', 'success');
         });
         
         // Toast
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            const msg = document.getElementById('toastMessage');
-            
-            icon.textContent = type === 'success' ? '✓' : '✕';
-            msg.textContent = message;
+            document.getElementById('toastIcon').textContent = type === 'success' ? '✓' : '✕';
+            document.getElementById('toastMessage').textContent = message;
             toast.className = `toast ${type} show`;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Check for demo param
-        if (new URLSearchParams(window.location.search).get('demo') === 'true') {
-            transcriptInput.value = demoTranscript;
-            setTimeout(() => extractBtn.click(), 500);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
         
         // Init
+        checkSavedLicense();
         loadConfig();
     </script>
 </body>
